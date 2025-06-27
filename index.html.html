@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GE6 - Free Fire Wheel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        body {
+            background: #0a1a3a;
+            min-height: 100vh;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Common Styles */
+        .page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #FF8C00, #FF4500);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 15px 0;
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.6);
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        /* Entry Page */
+        #entryPage {
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a1a3a, #1a3a6a);
+        }
+
+        .entry-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .entry-subtitle {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+            text-align: center;
+        }
+
+        .entry-form {
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .entry-input {
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #FFD700;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* Home Page */
+        #homePage {
+            background: linear-gradient(135deg, #0a1a3a, #1a3a6a);
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+
+        .home-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.5;
+            max-width: 300px;
+        }
+
+        /* Wheel Page */
+        #wheelPage {
+            background: linear-gradient(135deg, #0a1a3a, #1a3a6a);
+        }
+
+        .wheel-title {
+            font-size: 1.3rem;
+            margin: 10px 0 15px;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 20px auto;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 10px solid #FF4500;
+            box-shadow: 0 0 40px rgba(255, 69, 0, 0.7);
+            background: #111;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            transform: rotate(0deg);
+        }
+
+        .wheel-item {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wheel-emoji {
+            font-size: 50px;
+            transform: translate(35%, 35%) rotate(30deg);
+        }
+
+        /* 1 win segment and 5 lose segments */
+        .wheel-item:nth-child(1) { transform: rotate(0deg) skewY(30deg); background: #E74C3C; } /* Win */
+        .wheel-item:nth-child(2) { transform: rotate(60deg) skewY(30deg); background: #3498DB; } /* Lose */
+        .wheel-item:nth-child(3) { transform: rotate(120deg) skewY(30deg); background: #2ECC71; } /* Lose */
+        .wheel-item:nth-child(4) { transform: rotate(180deg) skewY(30deg); background: #F39C12; } /* Lose */
+        .wheel-item:nth-child(5) { transform: rotate(240deg) skewY(30deg); background: #9B59B6; } /* Lose */
+        .wheel-item:nth-child(6) { transform: rotate(300deg) skewY(30deg); background: #1ABC9C; } /* Lose */
+
+        .wheel-center {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #111;
+            border: 6px solid #FFD700;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 40px;
+            z-index: 10;
+        }
+
+        .pointer:before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #FF0000;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.9));
+        }
+
+        .result-container {
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .result-emoji {
+            font-size: 60px;
+            margin: 10px 0;
+            display: none;
+            text-align: center;
+        }
+
+        .result-text {
+            font-size: 1.4rem;
+            margin: 5px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        .win {
+            color: #00FF00;
+            text-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        .lose {
+            color: #FF0000;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .claim-section {
+            width: 100%;
+            max-width: 300px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .uid-input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .confirmation {
+            font-size: 1.3rem;
+            margin: 20px 0;
+            display: none;
+            color: #00FF00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+            text-align: center;
+        }
+
+        /* Ad Button Styles */
+        .ad-side-btn {
+            position: fixed;
+            right: 10px;
+            bottom: 100px;
+            background: linear-gradient(135deg, #9B59B6, #8E44AD);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 15px rgba(155, 89, 182, 0.6);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 100;
+        }
+
+        /* Ad Container */
+        .ad-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-content {
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid #FFD700;
+        }
+
+        .ad-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #FF4500;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .ad-timer {
+            font-size: 1.5rem;
+            margin: 15px 0;
+            color: #FFD700;
+        }
+
+        footer {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .footer-link {
+            color: #FFD700;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Privacy Page */
+        #privacyPage {
+            background: linear-gradient(135deg, #0a1a3a, #1a3a6a);
+        }
+
+        .privacy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .privacy-title {
+            font-size: 2rem;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .back-btn {
+            background: #FF4500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .privacy-content {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #FFD700;
+            line-height: 1.6;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* About Page */
+        #aboutPage {
+            background: linear-gradient(135deg, #0a1a3a, #1a3a6a);
+        }
+
+        .about-content {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #FFD700;
+            line-height: 1.6;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        @media (max-width: 500px) {
+            .entry-title {
+                font-size: 1.8rem;
+            }
+            .entry-subtitle {
+                font-size: 0.9rem;
+            }
+            .wheel-title, .privacy-title {
+                font-size: 1.2rem;
+            }
+            .logo {
+                font-size: 2.5rem;
+            }
+            .home-subtitle {
+                font-size: 1rem;
+            }
+            .btn {
+                padding: 15px 35px;
+                font-size: 1.1rem;
+            }
+            .wheel-container {
+                width: 260px;
+                height: 260px;
+            }
+            .wheel-emoji {
+                font-size: 40px;
+            }
+            .result-emoji {
+                font-size: 50px;
+            }
+            .result-text {
+                font-size: 1.2rem;
+            }
+            .privacy-content, .about-content {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+            .ad-side-btn {
+                bottom: 80px;
+                right: 5px;
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Entry Page -->
+    <div id="entryPage" class="page">
+        <div class="entry-title">WIN FREEFIRE 2500 DIAMONDS</div>
+        <div class="entry-subtitle">Click here and win diamonds 100% free</div>
+        <div class="entry-form">
+            <input type="text" class="entry-input" id="playerName" placeholder="Enter Your Name">
+            <input type="number" class="entry-input" id="playerLevel" placeholder="Enter Level (1-99)" min="1" max="99">
+            <button class="btn" id="entryBtn">CONTINUE</button>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="homePage" class="page">
+        <div class="logo">GE6</div>
+        <div class="home-subtitle">Get Daily 5 spins<br>Chance to win diamonds</div>
+        <button class="btn" id="homeBtn">SPIN TO WIN 💎</button>
+    </div>
+
+    <!-- Wheel Page -->
+    <div id="wheelPage" class="page">
+        <!-- Side Ad Button -->
+        <button class="ad-side-btn" id="sideAdBtn">
+            👾 Watch Ad +3 Spins
+        </button>
+        
+        <div class="wheel-title">🎊 Win Diamonds 💎 Daily 5 spins try your luck</div>
+        
+        <div class="wheel-container">
+            <div class="wheel" id="wheel">
+                <div class="wheel-item">
+                    <span class="wheel-emoji">💎</span>
+                </div>
+                <div class="wheel-item">
+                    <span class="wheel-emoji">😪</span>
+                </div>
+                <div class="wheel-item">
+                    <span class="wheel-emoji">😪</span>
+                </div>
+                <div class="wheel-item">
+                    <span class="wheel-emoji">😪</span>
+                </div>
+                <div class="wheel-item">
+                    <span class="wheel-emoji">😪</span>
+                </div>
+                <div class="wheel-item">
+                    <span class="wheel-emoji">😪</span>
+                </div>
+            </div>
+            <div class="wheel-center"></div>
+            <div class="pointer"></div>
+        </div>
+        
+        <button class="btn" id="spinBtn">SPIN (5/5)</button>
+        
+        <div class="result-container">
+            <div class="result-emoji" id="resultEmoji"></div>
+            <div class="result-text" id="resultText"></div>
+        </div>
+        
+        <div class="claim-section" id="claimSection">
+            <input type="text" class="uid-input" id="uidInput" placeholder="ENTER YOUR FREE FIRE UID" maxlength="12">
+            <button class="btn" id="claimBtn">CLAIM NOW</button>
+        </div>
+        
+        <div class="confirmation" id="confirmation">✅ Reward Claimed Successfully!</div>
+        
+        <footer>
+            <span class="footer-link" id="aboutLink">About</span>
+            <span class="footer-link" id="privacyLink">Privacy Policy</span>
+            <span class="footer-link" id="disclaimerLink">Disclaimer</span>
+        </footer>
+    </div>
+
+    <!-- Ad Container -->
+    <div class="ad-container" id="adContainer">
+        <button class="ad-close" id="adCloseBtn">✕</button>
+        <div class="ad-content">
+            <h3>Advertisement</h3>
+            <p>Watch this ad to get 3 extra spins!</p>
+            <div class="ad-timer" id="adTimer">5</div>
+            <div style="height: 150px; background: #333; display: flex; align-items: center; justify-content: center; margin: 15px 0; border-radius: 5px;">
+                [Fake Ad Content]
+            </div>
+            <button class="btn" id="adCompleteBtn" disabled>Please wait...</button>
+        </div>
+    </div>
+
+    <!-- Privacy Page -->
+    <div id="privacyPage" class="page">
+        <div class="privacy-header">
+            <div class="privacy-title">🔐 Privacy Policy</div>
+            <button class="back-btn" id="backBtn">BACK</button>
+        </div>
+        <div class="privacy-content">
+            We value your privacy. Our website simulates a reward experience where users can spin and claim up to 2500 Free Fire diamonds. We do not collect or store personal data such as UID, email, or passwords. All user inputs are for entertainment purposes only and are not shared with third parties. By using this site, you agree that no real diamonds are transferred, and this site is meant for fun. We ensure your browsing activity on our platform remains private and secure. For any questions, contact us through the official claim page.
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="aboutPage" class="page">
+        <div class="privacy-header">
+            <div class="privacy-title">ℹ️ About GE6</div>
+            <button class="back-btn" id="aboutBackBtn">BACK</button>
+        </div>
+        <div class="about-content">
+            <p>GE6 is a Free Fire reward simulator that lets players experience the thrill of winning diamonds through a virtual spin wheel. This is a fan-made entertainment platform and is not affiliated with Garena Free Fire.</p>
+            <p>Features:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Daily spin opportunities</li>
+                <li>Chance to win virtual diamonds</li>
+                <li>Fun gaming experience</li>
+                <li>No real money transactions</li>
+            </ul>
+            <p style="margin-top: 15px;">This is purely for entertainment purposes only.</p>
+        </div>
+    </div>
+
+    <!-- Disclaimer Page -->
+    <div id="disclaimerPage" class="page">
+        <div class="privacy-header">
+            <div class="privacy-title">⚠️ Disclaimer</div>
+            <button class="back-btn" id="disclaimerBackBtn">BACK</button>
+        </div>
+        <div class="about-content">
+            <p>This website is not affiliated with, maintained, authorized, endorsed or sponsored by Garena or Free Fire in any way.</p>
+            <p>All content and rewards on this platform are simulated and for entertainment purposes only. No real diamonds, items, or currency from Free Fire are actually distributed through this site.</p>
+            <p>The spin results are randomly generated and do not reflect actual chances in the official Free Fire game.</p>
+            <p>This is a fan-made project and should not be considered an official Free Fire service.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Page elements
+            const pages = {
+                entry: document.getElementById('entryPage'),
+                home: document.getElementById('homePage'),
+                wheel: document.getElementById('wheelPage'),
+                privacy: document.getElementById('privacyPage'),
+                about: document.getElementById('aboutPage'),
+                disclaimer: document.getElementById('disclaimerPage')
+            };
+
+            // Buttons
+            const entryBtn = document.getElementById('entryBtn');
+            const homeBtn = document.getElementById('homeBtn');
+            const spinBtn = document.getElementById('spinBtn');
+            const claimBtn = document.getElementById('claimBtn');
+            const sideAdBtn = document.getElementById('sideAdBtn');
+            const backBtn = document.getElementById('backBtn');
+            const aboutBackBtn = document.getElementById('aboutBackBtn');
+            const disclaimerBackBtn = document.getElementById('disclaimerBackBtn');
+            const adCloseBtn = document.getElementById('adCloseBtn');
+            const adCompleteBtn = document.getElementById('adCompleteBtn');
+
+            // Links
+            const privacyLink = document.getElementById('privacyLink');
+            const aboutLink = document.getElementById('aboutLink');
+            const disclaimerLink = document.getElementById('disclaimerLink');
+
+            // Wheel elements
+            const wheel = document.getElementById('wheel');
+            const resultText = document.getElementById('resultText');
+            const resultEmoji = document.getElementById('resultEmoji');
+            const claimSection = document.getElementById('claimSection');
+            const confirmation = document.getElementById('confirmation');
+            const uidInput = document.getElementById('uidInput');
+            const playerName = document.getElementById('playerName');
+            const playerLevel = document.getElementById('playerLevel');
+            const adContainer = document.getElementById('adContainer');
+            const adTimer = document.getElementById('adTimer');
+            
+            // Sound Effects
+            const spinSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
+            const winSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
+            const loseSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3');
+            
+            let canSpin = true;
+            const segmentAngle = 60; // 360/6 segments
+            let spinsLeft = 5; // Daily spins counter
+            const maxDailySpins = 5;
+            let adTimerInterval;
+
+            // Show initial page
+            showPage('entry');
+            updateSpinButton();
+
+            // Page navigation functions
+            function showPage(pageName) {
+                // Hide all pages
+                Object.values(pages).forEach(page => {
+                    page.style.display = 'none';
+                });
+                // Show requested page
+                pages[pageName].style.display = 'flex';
+            }
+
+            // Level input validation
+            playerLevel.addEventListener('input', function() {
+                if (this.value > 99) this.value = 99;
+                if (this.value < 1) this.value = '';
+            });
+
+            // Entry Button Click
+            entryBtn.addEventListener('click', function() {
+                if (!playerName.value.trim()) {
+                    alert('Please enter your name!');
+                    return;
+                }
+                if (!playerLevel.value.trim() || playerLevel.value < 1 || playerLevel.value > 99) {
+                    alert('Please enter a valid level between 1-99!');
+                    return;
+                }
+                showPage('home');
+            });
+            
+            // Home Button Click
+            homeBtn.addEventListener('click', function() {
+                showPage('wheel');
+            });
+            
+            // Update spin button text
+            function updateSpinButton() {
+                spinBtn.textContent = `SPIN (${spinsLeft}/${maxDailySpins})`;
+                if (spinsLeft === 0) {
+                    spinBtn.disabled = true;
+                    spinBtn.style.background = '#555';
+                } else {
+                    spinBtn.disabled = false;
+                    spinBtn.style.background = 'linear-gradient(135deg, #FF8C00, #FF4500)';
+                }
+            }
+            
+            // Spin Button Click
+            spinBtn.addEventListener('click', function() {
+                if (!canSpin || spinsLeft <= 0) return;
+                
+                spinsLeft--;
+                updateSpinButton();
+                
+                canSpin = false;
+                spinBtn.disabled = true;
+                resultText.textContent = '';
+                resultText.className = 'result-text';
+                resultEmoji.style.display = 'none';
+                claimSection.style.display = 'none';
+                confirmation.style.display = 'none';
+                
+                // Play spin sound
+                spinSound.play().catch(e => console.log("Sound play failed:", e));
+                
+                // Random spin (4-6 full rotations plus segment)
+                const extraSpins = 4 + Math.floor(Math.random() * 3);
+                const targetSegment = Math.floor(Math.random() * 6);
+                // Adjust target angle to stop in middle of segments
+                const targetAngle = 360 * extraSpins + (segmentAngle * targetSegment) + segmentAngle/2;
+                const currentRotation = getCurrentRotation();
+                
+                wheel.style.transform = `rotate(${currentRotation + targetAngle}deg)`;
+                
+                setTimeout(function() {
+                    const isWin = targetSegment === 0; // Only first segment is win now
+                    
+                    if (isWin) {
+                        resultEmoji.textContent = '💎';
+                        resultText.innerHTML = '🎉 Congratulations! You won 2500 Diamonds!';
+                        resultText.className = 'result-text win';
+                        claimSection.style.display = 'flex';
+                        winSound.play().catch(e => console.log("Sound play failed:", e));
+                        vibrateDevice();
+                    } else {
+                        resultEmoji.textContent = '😪';
+                        resultText.textContent = 'Bad Luck! Try Again!';
+                        resultText.className = 'result-text lose';
+                        loseSound.play().catch(e => console.log("Sound play failed:", e));
+                    }
+                    
+                    resultEmoji.style.display = 'block';
+                    canSpin = true;
+                    updateSpinButton();
+                }, 4000);
+            });
+            
+            // Side Ad Button Click
+            sideAdBtn.addEventListener('click', function() {
+                showAd();
+            });
+            
+            // Show Ad Function
+            function showAd() {
+                adContainer.style.display = 'flex';
+                let secondsLeft = 5;
+                adTimer.textContent = secondsLeft;
+                adCompleteBtn.disabled = true;
+                
+                clearInterval(adTimerInterval);
+                adTimerInterval = setInterval(function() {
+                    secondsLeft--;
+                    adTimer.textContent = secondsLeft;
+                    
+                    if (secondsLeft <= 0) {
+                        clearInterval(adTimerInterval);
+                        adCompleteBtn.disabled = false;
+                        adCompleteBtn.textContent = "GET 3 SPINS";
+                    }
+                }, 1000);
+            }
+            
+            // Ad Complete Button
+            adCompleteBtn.addEventListener('click', function() {
+                spinsLeft += 3;
+                if (spinsLeft > maxDailySpins) {
+                    spinsLeft = maxDailySpins;
+                }
+                updateSpinButton();
+                adContainer.style.display = 'none';
+                alert("+3 Spins Added!");
+            });
+            
+            // Close Ad Button
+            adCloseBtn.addEventListener('click', function() {
+                adContainer.style.display = 'none';
+                clearInterval(adTimerInterval);
+            });
+            
+            // Claim Button Click
+            claimBtn.addEventListener('click', function() {
+                if (!uidInput.value.trim()) {
+                    alert('Please enter your Free Fire UID!');
+                    return;
+                }
+                
+                claimBtn.disabled = true;
+                
+                // Simulate API call delay
+                setTimeout(function() {
+                    claimSection.style.display = 'none';
+                    confirmation.style.display = 'block';
+                    
+                    // Reset after 3 seconds
+                    setTimeout(function() {
+                        confirmation.style.display = 'none';
+                        claimBtn.disabled = false;
+                        uidInput.value = '';
+                    }, 3000);
+                }, 1500);
+            });
+
+            // Footer links
+            privacyLink.addEventListener('click', function() {
+                showPage('privacy');
+            });
+
+            aboutLink.addEventListener('click', function() {
+                showPage('about');
+            });
+
+            disclaimerLink.addEventListener('click', function() {
+                showPage('disclaimer');
+            });
+
+            // Back buttons
+            backBtn.addEventListener('click', function() {
+                showPage('wheel');
+            });
+
+            aboutBackBtn.addEventListener('click', function() {
+                showPage('wheel');
+            });
+
+            disclaimerBackBtn.addEventListener('click', function() {
+                showPage('wheel');
+            });
+
+            // Function to vibrate device
+            function vibrateDevice() {
+                if ("vibrate" in navigator) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }
+            
+            function getCurrentRotation() {
+                const style = window.getComputedStyle(wheel);
+                const matrix = style.transform || style.webkitTransform || style.mozTransform;
+                
+                if (matrix === 'none') return 0;
+                
+                const matrixValues = matrix.match(/matrix.*\((.+)\)/)[1].split(', ');
+                const a = matrixValues[0];
+                const b = matrixValues[1];
+                const angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+                
+                return angle < 0 ? angle + 360 : angle;
+            }
+        });
+    </script>
+</body>
+</html>
